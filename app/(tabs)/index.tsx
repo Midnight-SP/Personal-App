@@ -3,11 +3,43 @@ import { useEffect, useMemo, useState } from 'react';
 import { ScrollView, StyleSheet } from 'react-native';
 
 import { AppFooter } from '@/components/app-footer';
+import { usePreferences } from '@/context/preferences-context';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 
 export default function HomeScreen() {
+  const { language } = usePreferences();
   const [now, setNow] = useState(() => new Date());
+
+  const copy = language === 'pl'
+    ? {
+        greeting: {
+          morning: 'Dzień dobry',
+          afternoon: 'Dzień dobry',
+          evening: 'Dobry wieczór',
+          night: 'Dobranoc',
+        },
+        subtitle: 'Witaj w mojej aplikacji mobilnej! Miłego korzystania.',
+        hero:
+          'Ta mobilna wersja łączy wszystko w jednym miejscu: projekty, aktywność programistyczną, muzykę, gry i linki.',
+        aboutTitle: 'O mnie',
+        aboutBody:
+          'Student informatyki na Uniwersytecie Gdańskim, mieszkający w Gdyni. Skupiam się głównie na frontendzie i gamedevie, ucząc się przez budowanie szybkich prototypów i większych projektów.',
+      }
+    : {
+        greeting: {
+          morning: 'Good Morning',
+          afternoon: 'Good Afternoon',
+          evening: 'Good Evening',
+          night: 'Good Night',
+        },
+        subtitle: 'Welcome to my personal app! Have fun.',
+        hero:
+          'This mobile version keeps the same direction as the app: projects, coding activity, music, gaming, and personal links in one place.',
+        aboutTitle: 'About Me',
+        aboutBody:
+          'Computer Science student at the University of Gdańsk, based in Gdynia, Poland. I focus mostly on frontend and game development and learn by building both quick prototypes and larger projects.',
+      };
 
   useEffect(() => {
     const timer = setInterval(() => setNow(new Date()), 1000);
@@ -15,14 +47,16 @@ export default function HomeScreen() {
   }, []);
 
   const timeString = useMemo(() => {
-    const time = now.toLocaleTimeString('en-US', {
+    const locale = language === 'pl' ? 'pl-PL' : 'en-US';
+
+    const time = now.toLocaleTimeString(locale, {
       hour: '2-digit',
       minute: '2-digit',
       second: '2-digit',
       hour12: false,
     });
 
-    const date = now.toLocaleDateString('en-US', {
+    const date = now.toLocaleDateString(locale, {
       weekday: 'long',
       year: 'numeric',
       month: 'short',
@@ -30,15 +64,15 @@ export default function HomeScreen() {
     });
 
     return `${time} • ${date}`;
-  }, [now]);
+  }, [now, language]);
 
   const greeting = useMemo(() => {
     const hour = now.getHours();
-    if (hour >= 5 && hour < 12) return 'Good Morning';
-    if (hour >= 12 && hour < 17) return 'Good Afternoon';
-    if (hour >= 17 && hour < 22) return 'Good Evening';
-    return 'Good Night';
-  }, [now]);
+    if (hour >= 5 && hour < 12) return copy.greeting.morning;
+    if (hour >= 12 && hour < 17) return copy.greeting.afternoon;
+    if (hour >= 17 && hour < 22) return copy.greeting.evening;
+    return copy.greeting.night;
+  }, [now, copy]);
 
   return (
     <ThemedView style={styles.screen}>
@@ -46,21 +80,14 @@ export default function HomeScreen() {
         <ThemedView style={styles.heroSection}>
           <ThemedText style={styles.clock}>{timeString}</ThemedText>
           <ThemedText style={styles.homeTitle}>{greeting}</ThemedText>
-          <ThemedText style={styles.subtitle}>Welcome to my personal app! Have fun.</ThemedText>
-          <ThemedText style={styles.heroCopy}>
-            This mobile version keeps the same direction as the app: projects, coding activity,
-            music, gaming, and personal links in one place.
-          </ThemedText>
+          <ThemedText style={styles.subtitle}>{copy.subtitle}</ThemedText>
+          <ThemedText style={styles.heroCopy}>{copy.hero}</ThemedText>
         </ThemedView>
         <ThemedView style={styles.activityBox}>
           <ThemedText type="defaultSemiBold" style={styles.activityTitle}>
-            About Me
+            {copy.aboutTitle}
           </ThemedText>
-          <ThemedText>
-            Computer Science student at the University of Gdańsk, based in Gdynia, Poland. I focus
-            mostly on frontend and game development and learn by building both quick prototypes and
-            larger projects.
-          </ThemedText>
+          <ThemedText>{copy.aboutBody}</ThemedText>
         </ThemedView>
         <AppFooter />
       </ScrollView>

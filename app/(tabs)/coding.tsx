@@ -3,6 +3,7 @@ import { Pressable, ScrollView, StyleSheet } from 'react-native';
 import { useRouter } from 'expo-router';
 
 import { AppFooter } from '@/components/app-footer';
+import { usePreferences } from '@/context/preferences-context';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 
@@ -39,12 +40,47 @@ type GitHubContribution = {
 
 export default function CodingScreen() {
   const router = useRouter();
+  const { language } = usePreferences();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [stats, setStats] = useState<GitHubStats | null>(null);
   const [repos, setRepos] = useState<GitHubRepo[]>([]);
   const [orgs, setOrgs] = useState<GitHubOrg[]>([]);
   const [contributions, setContributions] = useState<GitHubContribution[]>([]);
+
+  const copy = language === 'pl'
+    ? {
+        eyebrow: 'Kod',
+        title: 'Aktywność GitHub',
+        subtitle: 'Dane na żywo z API Twojej strony.',
+        loading: 'Ładowanie danych programistycznych...',
+        errorTitle: 'Nie udało się pobrać danych API',
+        retry: 'Ponów',
+        profile: 'Profil GitHub',
+        repos: 'Repozytoria',
+        followers: 'Obserwujący',
+        following: 'Obserwowani',
+        updated: 'Aktualizacja',
+        explore: 'Przeglądaj dane programistyczne',
+        organizations: 'Organizacje',
+        contributions: 'Kontrybucje',
+      }
+    : {
+        eyebrow: 'Coding',
+        title: 'GitHub activity',
+        subtitle: 'Live data from your personal website APIs.',
+        loading: 'Loading coding data...',
+        errorTitle: 'Could not load API data',
+        retry: 'Retry',
+        profile: 'GitHub Profile',
+        repos: 'Repos',
+        followers: 'Followers',
+        following: 'Following',
+        updated: 'Updated',
+        explore: 'Explore Coding Data',
+        organizations: 'Organizations',
+        contributions: 'Contributions',
+      };
 
   const loadData = async () => {
     try {
@@ -86,19 +122,19 @@ export default function CodingScreen() {
     <ThemedView style={styles.screen}>
       <ScrollView contentContainerStyle={styles.content}>
         <ThemedView style={styles.section}>
-          <ThemedText style={styles.eyebrow}>Coding</ThemedText>
-          <ThemedText type="title">GitHub activity</ThemedText>
-          <ThemedText style={styles.metaText}>Live data from your personal website APIs.</ThemedText>
+          <ThemedText style={styles.eyebrow}>{copy.eyebrow}</ThemedText>
+          <ThemedText type="title">{copy.title}</ThemedText>
+          <ThemedText style={styles.metaText}>{copy.subtitle}</ThemedText>
         </ThemedView>
 
-        {loading ? <ThemedText>Loading coding data...</ThemedText> : null}
+        {loading ? <ThemedText>{copy.loading}</ThemedText> : null}
 
         {error ? (
           <ThemedView style={styles.card}>
-            <ThemedText type="defaultSemiBold">Could not load API data</ThemedText>
+            <ThemedText type="defaultSemiBold">{copy.errorTitle}</ThemedText>
             <ThemedText>{error}</ThemedText>
             <Pressable onPress={() => void loadData()} style={styles.linkButton}>
-              <ThemedText type="link">Retry</ThemedText>
+              <ThemedText type="link">{copy.retry}</ThemedText>
             </Pressable>
           </ThemedView>
         ) : null}
@@ -107,38 +143,38 @@ export default function CodingScreen() {
           <ThemedView style={styles.grid}>
             {stats ? (
               <ThemedView style={styles.card}>
-                <ThemedText type="defaultSemiBold">GitHub Profile</ThemedText>
+                <ThemedText type="defaultSemiBold">{copy.profile}</ThemedText>
                 <ThemedText style={styles.metaText}>@{stats.login}</ThemedText>
                 <ThemedView style={styles.statsRow}>
                   <ThemedView style={styles.statPill}>
                     <ThemedText type="defaultSemiBold">{stats.public_repos}</ThemedText>
-                    <ThemedText style={styles.metaText}>Repos</ThemedText>
+                    <ThemedText style={styles.metaText}>{copy.repos}</ThemedText>
                   </ThemedView>
                   <ThemedView style={styles.statPill}>
                     <ThemedText type="defaultSemiBold">{stats.followers}</ThemedText>
-                    <ThemedText style={styles.metaText}>Followers</ThemedText>
+                    <ThemedText style={styles.metaText}>{copy.followers}</ThemedText>
                   </ThemedView>
                   <ThemedView style={styles.statPill}>
                     <ThemedText type="defaultSemiBold">{stats.following}</ThemedText>
-                    <ThemedText style={styles.metaText}>Following</ThemedText>
+                    <ThemedText style={styles.metaText}>{copy.following}</ThemedText>
                   </ThemedView>
                 </ThemedView>
-                <ThemedText style={styles.metaText}>Updated: {new Date(stats.updated_at).toLocaleDateString()}</ThemedText>
+                <ThemedText style={styles.metaText}>{copy.updated}: {new Date(stats.updated_at).toLocaleDateString(language === 'pl' ? 'pl-PL' : 'en-US')}</ThemedText>
               </ThemedView>
             ) : null}
 
             <ThemedView style={styles.card}>
-              <ThemedText type="defaultSemiBold">Explore Coding Data</ThemedText>
+              <ThemedText type="defaultSemiBold">{copy.explore}</ThemedText>
               <Pressable style={styles.actionRow} onPress={() => router.push('/details/coding-repositories')}>
-                <ThemedText>Repositories</ThemedText>
+                <ThemedText>{copy.repos}</ThemedText>
                 <ThemedText style={styles.metaText}>{repos.length}</ThemedText>
               </Pressable>
               <Pressable style={styles.actionRow} onPress={() => router.push('/details/coding-organizations')}>
-                <ThemedText>Organizations</ThemedText>
+                <ThemedText>{copy.organizations}</ThemedText>
                 <ThemedText style={styles.metaText}>{orgs.length}</ThemedText>
               </Pressable>
               <Pressable style={styles.actionRow} onPress={() => router.push('/details/coding-contributions')}>
-                <ThemedText>Contributions</ThemedText>
+                <ThemedText>{copy.contributions}</ThemedText>
                 <ThemedText style={styles.metaText}>{contributions.length}</ThemedText>
               </Pressable>
             </ThemedView>

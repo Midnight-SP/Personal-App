@@ -3,6 +3,7 @@ import { Image, Pressable, ScrollView, StyleSheet } from 'react-native';
 import { useRouter } from 'expo-router';
 
 import { AppFooter } from '@/components/app-footer';
+import { usePreferences } from '@/context/preferences-context';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 
@@ -40,9 +41,38 @@ type SpotifyData = {
 
 export default function MusicScreen() {
   const router = useRouter();
+  const { language } = usePreferences();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [musicData, setMusicData] = useState<SpotifyData | null>(null);
+
+  const copy = language === 'pl'
+    ? {
+        eyebrow: 'Muzyka',
+        title: 'Aktywność Spotify',
+        subtitle: 'Dane na żywo z API Spotify.',
+        loading: 'Ładowanie danych muzycznych...',
+        errorTitle: 'Nie udało się pobrać danych API',
+        retry: 'Ponów',
+        recent: 'Ostatnio odtwarzane',
+        topGenres: 'Top gatunki',
+        topArtists: 'Top artyści',
+        topTracks: 'Top utwory',
+        noRecent: 'Brak ostatnio odtwarzanego utworu.',
+      }
+    : {
+        eyebrow: 'Music',
+        title: 'Spotify activity',
+        subtitle: 'Live data from your Spotify API.',
+        loading: 'Loading music data...',
+        errorTitle: 'Could not load API data',
+        retry: 'Retry',
+        recent: 'Recently Played',
+        topGenres: 'Top genres',
+        topArtists: 'Top Artists',
+        topTracks: 'Top Tracks',
+        noRecent: 'No recent track available.',
+      };
 
   const topGenres = (musicData?.topArtists || [])
     .flatMap((artist) => artist.genres || [])
@@ -88,19 +118,19 @@ export default function MusicScreen() {
     <ThemedView style={styles.screen}>
       <ScrollView contentContainerStyle={styles.content}>
         <ThemedView style={styles.section}>
-          <ThemedText style={styles.eyebrow}>Music</ThemedText>
-          <ThemedText type="title">Spotify activity</ThemedText>
-          <ThemedText style={styles.metaText}>Live data from your Spotify API.</ThemedText>
+          <ThemedText style={styles.eyebrow}>{copy.eyebrow}</ThemedText>
+          <ThemedText type="title">{copy.title}</ThemedText>
+          <ThemedText style={styles.metaText}>{copy.subtitle}</ThemedText>
         </ThemedView>
 
-        {loading ? <ThemedText>Loading music data...</ThemedText> : null}
+        {loading ? <ThemedText>{copy.loading}</ThemedText> : null}
 
         {error ? (
           <ThemedView style={styles.card}>
-            <ThemedText type="defaultSemiBold">Could not load API data</ThemedText>
+            <ThemedText type="defaultSemiBold">{copy.errorTitle}</ThemedText>
             <ThemedText>{error}</ThemedText>
             <Pressable onPress={() => void loadMusicData()} style={styles.linkButton}>
-              <ThemedText type="link">Retry</ThemedText>
+              <ThemedText type="link">{copy.retry}</ThemedText>
             </Pressable>
           </ThemedView>
         ) : null}
@@ -108,7 +138,7 @@ export default function MusicScreen() {
         {!loading && !error && musicData ? (
           <ThemedView style={styles.grid}>
             <ThemedView style={styles.card}>
-              <ThemedText type="defaultSemiBold">Recently Played</ThemedText>
+              <ThemedText type="defaultSemiBold">{copy.recent}</ThemedText>
               {musicData.recentTrack ? (
                 <>
                   {musicData.recentTrack.albumImage ? (
@@ -117,19 +147,19 @@ export default function MusicScreen() {
                   <ThemedText type="defaultSemiBold">{musicData.recentTrack.name}</ThemedText>
                   <ThemedText style={styles.metaText}>{musicData.recentTrack.artist}</ThemedText>
                   <ThemedText style={styles.metaText}>{musicData.recentTrack.album}</ThemedText>
-                  <ThemedText style={styles.metaText}>{new Date(musicData.recentTrack.playedAt).toLocaleDateString()}</ThemedText>
-                  {topGenreList.length > 0 ? <ThemedText style={styles.metaText}>Top genres: {topGenreList.join(', ')}</ThemedText> : null}
+                  <ThemedText style={styles.metaText}>{new Date(musicData.recentTrack.playedAt).toLocaleDateString(language === 'pl' ? 'pl-PL' : 'en-US')}</ThemedText>
+                  {topGenreList.length > 0 ? <ThemedText style={styles.metaText}>{copy.topGenres}: {topGenreList.join(', ')}</ThemedText> : null}
                   <Pressable style={styles.actionRow} onPress={() => router.push('/details/music-top-artists')}>
-                    <ThemedText>Top Artists</ThemedText>
+                    <ThemedText>{copy.topArtists}</ThemedText>
                     <ThemedText style={styles.metaText}>{musicData.topArtists.length}</ThemedText>
                   </Pressable>
                   <Pressable style={styles.actionRow} onPress={() => router.push('/details/music-top-tracks')}>
-                    <ThemedText>Top Tracks</ThemedText>
+                    <ThemedText>{copy.topTracks}</ThemedText>
                     <ThemedText style={styles.metaText}>{musicData.topTracks.length}</ThemedText>
                   </Pressable>
                 </>
               ) : (
-                <ThemedText style={styles.metaText}>No recent track available.</ThemedText>
+                <ThemedText style={styles.metaText}>{copy.noRecent}</ThemedText>
               )}
             </ThemedView>
           </ThemedView>

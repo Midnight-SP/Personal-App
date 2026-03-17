@@ -4,10 +4,28 @@ import React from 'react';
 import { HapticTab } from '@/components/haptic-tab';
 import { IconSymbol } from '@/components/ui/icon-symbol';
 import { Colors } from '@/constants/theme';
+import { usePreferences } from '@/context/preferences-context';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 
 export default function TabLayout() {
   const colorScheme = useColorScheme();
+  const { language } = usePreferences();
+
+  const labels = language === 'pl'
+    ? {
+        home: 'Główna',
+        coding: 'Kod',
+        gaming: 'Gry',
+        music: 'Muzyka',
+        settings: 'Ustawienia',
+      }
+    : {
+        home: 'Home',
+        coding: 'Coding',
+        gaming: 'Gaming',
+        music: 'Music',
+        settings: 'Settings',
+      };
 
   return (
     <Tabs
@@ -19,14 +37,14 @@ export default function TabLayout() {
       <Tabs.Screen
         name="index"
         options={{
-          title: 'Home',
+          title: labels.home,
           tabBarIcon: ({ color }) => <IconSymbol size={28} name="house.fill" color={color} />,
         }}
       />
       <Tabs.Screen
         name="coding"
         options={{
-          title: 'Coding',
+          title: labels.coding,
           tabBarIcon: ({ color }) => (
             <IconSymbol
               size={28}
@@ -39,7 +57,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="gaming"
         options={{
-          title: 'Gaming',
+          title: labels.gaming,
           tabBarIcon: ({ color }) => (
             <IconSymbol size={28} name="gamecontroller.fill" color={color} />
           ),
@@ -48,14 +66,14 @@ export default function TabLayout() {
       <Tabs.Screen
         name="music"
         options={{
-          title: 'Music',
+          title: labels.music,
           tabBarIcon: ({ color }) => <IconSymbol size={28} name="music.note" color={color} />,
         }}
       />
       <Tabs.Screen
         name="settings"
         options={{
-          title: 'Settings',
+          title: labels.settings,
           tabBarIcon: ({ color }) => <IconSymbol size={28} name="gearshape.fill" color={color} />,
         }}
       />

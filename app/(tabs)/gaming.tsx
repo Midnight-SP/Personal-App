@@ -3,6 +3,7 @@ import { Image, Pressable, ScrollView, StyleSheet } from 'react-native';
 import { useRouter } from 'expo-router';
 
 import { AppFooter } from '@/components/app-footer';
+import { usePreferences } from '@/context/preferences-context';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 
@@ -39,9 +40,44 @@ type SteamGamingData = {
 
 export default function GamingScreen() {
   const router = useRouter();
+  const { language } = usePreferences();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [gamingData, setGamingData] = useState<SteamGamingData | null>(null);
+
+  const copy = language === 'pl'
+    ? {
+        eyebrow: 'Gry',
+        title: 'Aktywność Steam',
+        subtitle: 'Dane na żywo z API Steam.',
+        loading: 'Ładowanie danych gamingowych...',
+        errorTitle: 'Nie udało się pobrać danych API',
+        retry: 'Ponów',
+        profile: 'Profil Steam',
+        level: 'Poziom',
+        badges: 'Odznaki',
+        games: 'Gry',
+        since: 'Od',
+        topPlayed: 'Najczęściej grane',
+        recent: 'Ostatnio grane',
+        updated: 'Aktualizacja',
+      }
+    : {
+        eyebrow: 'Gaming',
+        title: 'Steam activity',
+        subtitle: 'Live data from your Steam gaming API.',
+        loading: 'Loading gaming data...',
+        errorTitle: 'Could not load API data',
+        retry: 'Retry',
+        profile: 'Steam Profile',
+        level: 'Level',
+        badges: 'Badges',
+        games: 'Games',
+        since: 'Since',
+        topPlayed: 'Top Played Games',
+        recent: 'Recently Played Games',
+        updated: 'Updated',
+      };
 
   const loadGamingData = async () => {
     try {
@@ -70,19 +106,19 @@ export default function GamingScreen() {
     <ThemedView style={styles.screen}>
       <ScrollView contentContainerStyle={styles.content}>
         <ThemedView style={styles.section}>
-          <ThemedText style={styles.eyebrow}>Gaming</ThemedText>
-          <ThemedText type="title">Steam activity</ThemedText>
-          <ThemedText style={styles.metaText}>Live data from your Steam gaming API.</ThemedText>
+          <ThemedText style={styles.eyebrow}>{copy.eyebrow}</ThemedText>
+          <ThemedText type="title">{copy.title}</ThemedText>
+          <ThemedText style={styles.metaText}>{copy.subtitle}</ThemedText>
         </ThemedView>
 
-        {loading ? <ThemedText>Loading gaming data...</ThemedText> : null}
+        {loading ? <ThemedText>{copy.loading}</ThemedText> : null}
 
         {error ? (
           <ThemedView style={styles.card}>
-            <ThemedText type="defaultSemiBold">Could not load API data</ThemedText>
+            <ThemedText type="defaultSemiBold">{copy.errorTitle}</ThemedText>
             <ThemedText>{error}</ThemedText>
             <Pressable onPress={() => void loadGamingData()} style={styles.linkButton}>
-              <ThemedText type="link">Retry</ThemedText>
+              <ThemedText type="link">{copy.retry}</ThemedText>
             </Pressable>
           </ThemedView>
         ) : null}
@@ -90,7 +126,7 @@ export default function GamingScreen() {
         {!loading && !error && gamingData ? (
           <ThemedView style={styles.grid}>
             <ThemedView style={styles.card}>
-              <ThemedText type="defaultSemiBold">Steam Profile</ThemedText>
+              <ThemedText type="defaultSemiBold">{copy.profile}</ThemedText>
               {gamingData.playerProfile.avatar ? (
                 <Image source={{ uri: gamingData.playerProfile.avatar }} style={styles.profileAvatar} />
               ) : null}
@@ -98,29 +134,29 @@ export default function GamingScreen() {
               <ThemedView style={styles.statsRow}>
                 <ThemedView style={styles.statPill}>
                   <ThemedText type="defaultSemiBold">{gamingData.steamLevel}</ThemedText>
-                  <ThemedText style={styles.metaText}>Level</ThemedText>
+                  <ThemedText style={styles.metaText}>{copy.level}</ThemedText>
                 </ThemedView>
                 <ThemedView style={styles.statPill}>
                   <ThemedText type="defaultSemiBold">{gamingData.totalBadges}</ThemedText>
-                  <ThemedText style={styles.metaText}>Badges</ThemedText>
+                  <ThemedText style={styles.metaText}>{copy.badges}</ThemedText>
                 </ThemedView>
                 <ThemedView style={styles.statPill}>
                   <ThemedText type="defaultSemiBold">{gamingData.total}</ThemedText>
-                  <ThemedText style={styles.metaText}>Games</ThemedText>
+                  <ThemedText style={styles.metaText}>{copy.games}</ThemedText>
                 </ThemedView>
               </ThemedView>
               <ThemedText style={styles.metaText}>
-                Since: {new Date(gamingData.playerProfile.accountCreated).toLocaleDateString()}
+                {copy.since}: {new Date(gamingData.playerProfile.accountCreated).toLocaleDateString(language === 'pl' ? 'pl-PL' : 'en-US')}
               </ThemedText>
               <Pressable style={styles.actionRow} onPress={() => router.push('/details/gaming-top-played')}>
-                <ThemedText>Top Played Games</ThemedText>
+                <ThemedText>{copy.topPlayed}</ThemedText>
                 <ThemedText style={styles.metaText}>{gamingData.topPlayed.length}</ThemedText>
               </Pressable>
               <Pressable style={styles.actionRow} onPress={() => router.push('/details/gaming-last-played')}>
-                <ThemedText>Recently Played Games</ThemedText>
+                <ThemedText>{copy.recent}</ThemedText>
                 <ThemedText style={styles.metaText}>{gamingData.lastPlayedGames.length}</ThemedText>
               </Pressable>
-              <ThemedText style={styles.metaText}>Updated: {new Date(gamingData.fetchedAt).toLocaleString()}</ThemedText>
+              <ThemedText style={styles.metaText}>{copy.updated}: {new Date(gamingData.fetchedAt).toLocaleString(language === 'pl' ? 'pl-PL' : 'en-US')}</ThemedText>
             </ThemedView>
           </ThemedView>
         ) : null}
