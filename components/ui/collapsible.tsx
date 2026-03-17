@@ -37,9 +37,9 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
+    paddingVertical: 2,
   },
   content: {
-    marginTop: 6,
-    marginLeft: 24,
+    marginTop: 8,
   },
 });
