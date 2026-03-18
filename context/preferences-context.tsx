@@ -4,7 +4,7 @@ import { Appearance, type ColorSchemeName, useColorScheme as useSystemColorSchem
 import { createContext, useContext, useEffect, useMemo, useState, type PropsWithChildren } from 'react';
 
 type ThemePreference = 'system' | 'light' | 'dark';
-type AppLanguage = 'en' | 'pl';
+export type AppLanguage = 'en' | 'pl';
 
 type PreferencesContextValue = {
   themePreference: ThemePreference;
@@ -12,10 +12,13 @@ type PreferencesContextValue = {
   colorScheme: NonNullable<ColorSchemeName>;
   language: AppLanguage;
   setLanguage: (value: AppLanguage) => Promise<void>;
+  notificationsEnabled: boolean;
+  setNotificationsEnabled: (value: boolean) => Promise<void>;
 };
 
 const THEME_KEY = 'app.themePreference';
 const LANGUAGE_KEY = 'app.language';
+const NOTIFICATIONS_ENABLED_KEY = 'app.notificationsEnabled';
 const memoryStorage = new Map<string, string>();
 const FALLBACK_FILE = new FileSystem.File(FileSystem.Paths.document, 'preferences.json');
 
@@ -98,12 +101,14 @@ export function PreferencesProvider({ children }: PropsWithChildren) {
   const systemColorScheme = useSystemColorScheme();
   const [themePreference, setThemePreferenceState] = useState<ThemePreference>('system');
   const [language, setLanguageState] = useState<AppLanguage>('en');
+  const [notificationsEnabled, setNotificationsEnabledState] = useState(true);
 
   useEffect(() => {
     const load = async () => {
-      const [savedTheme, savedLanguage] = await Promise.all([
+      const [savedTheme, savedLanguage, savedNotificationsEnabled] = await Promise.all([
         safeGetItem(THEME_KEY),
         safeGetItem(LANGUAGE_KEY),
+        safeGetItem(NOTIFICATIONS_ENABLED_KEY),
       ]);
 
       if (savedTheme === 'system' || savedTheme === 'light' || savedTheme === 'dark') {
@@ -112,6 +117,14 @@ export function PreferencesProvider({ children }: PropsWithChildren) {
 
       if (savedLanguage === 'en' || savedLanguage === 'pl') {
         setLanguageState(savedLanguage);
+      }
+
+      if (savedNotificationsEnabled === 'true') {
+        setNotificationsEnabledState(true);
+      }
+
+      if (savedNotificationsEnabled === 'false') {
+        setNotificationsEnabledState(false);
       }
     };
 
@@ -142,8 +155,13 @@ export function PreferencesProvider({ children }: PropsWithChildren) {
         setLanguageState(nextLanguage);
         await safeSetItem(LANGUAGE_KEY, nextLanguage);
       },
+      notificationsEnabled,
+      setNotificationsEnabled: async (nextValue) => {
+        setNotificationsEnabledState(nextValue);
+        await safeSetItem(NOTIFICATIONS_ENABLED_KEY, String(nextValue));
+      },
     }),
-    [themePreference, colorScheme, language]
+    [themePreference, colorScheme, language, notificationsEnabled]
   );
 
   return <PreferencesContext.Provider value={value}>{children}</PreferencesContext.Provider>;

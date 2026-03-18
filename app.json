@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "Personal App",
+    "name": "Midnight-SP",
     "slug": "personal-app",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -9,11 +9,11 @@
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
-      "bundleIdentifier": "com.midnight-sp.personalapp",
+      "bundleIdentifier": "com.midnightsp.personalapp",
       "supportsTablet": true
     },
     "android": {
-      "package": "com.midnight-sp.personalapp",
+      "package": "com.midnightsp.personalapp",
       "adaptiveIcon": {
         "backgroundColor": "#E6F4FE",
         "foregroundImage": "./assets/images/android-icon-foreground.png",
@@ -29,6 +29,13 @@
     },
     "plugins": [
       "expo-router",
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/images/notification-icon.png",
+          "color": "#ffffff"
+        }
+      ],
       [
         "expo-splash-screen",
         {

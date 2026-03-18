@@ -2,7 +2,9 @@ import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import 'react-native-reanimated';
+import { useEffect } from 'react';
 
+import { cancelDailyGoodMorningNotifications, scheduleDailyGoodMorningNotification } from '@/lib/notifications';
 import { PreferencesProvider, usePreferences } from '@/context/preferences-context';
 
 export const unstable_settings = {
@@ -18,7 +20,20 @@ export default function RootLayout() {
 }
 
 function RootLayoutContent() {
-  const { colorScheme } = usePreferences();
+  const { colorScheme, notificationsEnabled, language } = usePreferences();
+
+  useEffect(() => {
+    const syncNotifications = async () => {
+      if (!notificationsEnabled) {
+        await cancelDailyGoodMorningNotifications();
+        return;
+      }
+
+      await scheduleDailyGoodMorningNotification(language);
+    };
+
+    void syncNotifications();
+  }, [notificationsEnabled, language]);
 
   return (
     <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>

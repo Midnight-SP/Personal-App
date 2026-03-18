@@ -9,7 +9,14 @@ import { ThemedView } from '@/components/themed-view';
 
 export default function SettingsScreen() {
   const router = useRouter();
-  const { themePreference, setThemePreference, language, setLanguage } = usePreferences();
+  const {
+    themePreference,
+    setThemePreference,
+    language,
+    setLanguage,
+    notificationsEnabled,
+    setNotificationsEnabled,
+  } = usePreferences();
 
   const copy = language === 'pl'
     ? {
@@ -21,11 +28,15 @@ export default function SettingsScreen() {
         themeDescription: 'Wybierz wygląd aplikacji.',
         language: 'Język',
         languageDescription: 'Wybierz język interfejsu.',
+        notifications: 'Powiadomienia',
+        notificationsDescription: 'Otrzymuj codzienne powiadomienie o 8:00.',
         links: 'Linki zewnętrzne',
         open: 'Otwórz',
         system: 'System',
         light: 'Jasny',
         dark: 'Ciemny',
+        on: 'Włączone',
+        off: 'Wyłączone',
         english: 'English',
         polish: 'Polski',
       }
@@ -38,11 +49,15 @@ export default function SettingsScreen() {
         themeDescription: 'Choose the app appearance.',
         language: 'Language',
         languageDescription: 'Choose the interface language.',
+        notifications: 'Notifications',
+        notificationsDescription: 'Get a daily notification at 8:00 AM.',
         links: 'External links',
         open: 'Open',
         system: 'System',
         light: 'Light',
         dark: 'Dark',
+        on: 'On',
+        off: 'Off',
         english: 'English',
         polish: 'Polski',
       };
@@ -56,6 +71,11 @@ export default function SettingsScreen() {
   const languageOptions = [
     { key: 'en', label: copy.english },
     { key: 'pl', label: copy.polish },
+  ] as const;
+
+  const notificationOptions = [
+    { key: true, label: copy.on },
+    { key: false, label: copy.off },
   ] as const;
 
   return (
@@ -98,6 +118,30 @@ export default function SettingsScreen() {
                   style={[styles.toggleOption, language === option.key ? styles.toggleOptionActive : null]}
                   onPress={() => void setLanguage(option.key)}>
                   <ThemedText style={[styles.toggleText, language === option.key ? styles.toggleTextActive : null]}>
+                    {option.label}
+                  </ThemedText>
+                </Pressable>
+              ))}
+            </ThemedView>
+          </ThemedView>
+
+          <ThemedView style={styles.rowItem}>
+            <ThemedText type="defaultSemiBold">{copy.notifications}</ThemedText>
+            <ThemedText style={styles.metaText}>{copy.notificationsDescription}</ThemedText>
+            <ThemedView style={styles.toggleRow}>
+              {notificationOptions.map((option) => (
+                <Pressable
+                  key={option.label}
+                  style={[
+                    styles.toggleOption,
+                    notificationsEnabled === option.key ? styles.toggleOptionActive : null,
+                  ]}
+                  onPress={() => void setNotificationsEnabled(option.key)}>
+                  <ThemedText
+                    style={[
+                      styles.toggleText,
+                      notificationsEnabled === option.key ? styles.toggleTextActive : null,
+                    ]}>
                     {option.label}
                   </ThemedText>
                 </Pressable>
